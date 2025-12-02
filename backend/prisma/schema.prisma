@@ -1,0 +1,684 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id                  String               @id @default(uuid())
+  name                String
+  email               String?
+  phone               String
+  consents            Consent[]
+  documents           Document[]
+  passwordHash        String?
+  loanApplications    LoanApplication[]
+  goals               Goal[]
+  auditLogs           AuditLog[]
+  // 🔹 Distribution relations
+  productTransactions ProductTransaction[]
+
+  // Risk & financial profile
+  riskLevel        String
+  age              Int
+  income           Int
+  dependents       Int
+  currentInsurance Int
+
+  // Aggregates
+  aum       Float    @default(0)
+  createdAt DateTime @default(now())
+
+  // Advisor relation
+  advisorId String
+  advisor   Advisor @relation(fields: [advisorId], references: [id])
+
+  // Relations
+  portfolios        Portfolio[]
+  portfolioAlerts   PortfolioAlert[]
+  performancePoints PortfolioPerformance[]
+  alerts            Alert[]
+  sipPlans          SipPlan[]
+  assets            Asset[]
+  liabilities       Liability[]
+  bankTransactions  BankTransaction[]
+  creditChecks      CreditScoreCheck[]
+
+  // 🔹 CRM relations
+  interactions Interaction[]
+  tasks        Task[]
+  campaigns    Campaign[]    @relation("CampaignClients")
+}
+
+model Advisor {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  clients       Client[]
+  auditLogs     AuditLog[]
+  subscriptions Subscription[]
+  aiUsage       AiUsage[]
+
+  // 🔹 CRM relations
+  interactions  Interaction[]
+  tasksAssigned Task[]        @relation("AdvisorTasks")
+}
+
+model Portfolio {
+  id        String   @id @default(uuid())
+  type      String // MF, Loan, Insurance, AIF, etc.
+  value     Float
+  product   String
+  createdAt DateTime @default(now())
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+
+  // Holdings for market data sync
+  holdings PortfolioHolding[]
+
+  // 🔹 Optional link to master product
+  productId  String?
+  productRef FinancialProduct? @relation(fields: [productId], references: [id])
+
+  // 🔹 Distribution relations
+  productTransactions ProductTransaction[]
+}
+
+model PortfolioHolding {
+  id          String   @id @default(cuid())
+  portfolioId String
+  symbol      String // e.g. RELIANCE, HDFCBANK, MF code
+  type        String // STOCK | MF | BOND | etc.
+  lastPrice   Float?
+  createdAt   DateTime @default(now())
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+}
+
+model PortfolioPerformance {
+  id        String   @id @default(cuid())
+  clientId  String
+  date      DateTime
+  value     Int
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model Asset {
+  id        String   @id @default(cuid())
+  clientId  String
+  type      String // "PROPERTY" | "GOLD" | "CASH" | "OTHER"
+  value     Int
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model Liability {
+  id        String   @id @default(cuid())
+  clientId  String
+  loanType  String // "HOME_LOAN" | "PERSONAL_LOAN" | etc.
+  amount    Int
+  interest  Float
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model Alert {
+  id        String   @id @default(cuid())
+  clientId  String
+  severity  String
+  message   String
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model PortfolioAlert {
+  id        String   @id @default(cuid())
+  clientId  String
+  alertType String
+  message   String
+  severity  String
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model CreditScoreCheck {
+  id        String   @id @default(cuid())
+  clientId  String
+  bureau    String // CIBIL | EXPERIAN | etc.
+  score     Int
+  raw       Json?
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model BankTransaction {
+  id          String   @id @default(cuid())
+  clientId    String
+  date        DateTime
+  description String
+  amount      Float
+  type        String // CREDIT / DEBIT
+  category    String
+  createdAt   DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model SipPlan {
+  id         String   @id @default(cuid())
+  clientId   String
+  productId  String? // ✅ optional
+  amount     Int
+  dayOfMonth Int
+  mandateId  String?
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  client  Client            @relation(fields: [clientId], references: [id])
+  product FinancialProduct? @relation(fields: [productId], references: [id]) // ✅ MUST be optional
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  clientId   String
+  advisorId  String?     // 👈 optional / nullable
+  entityType String
+  entityId   String?
+  action     String
+  message    String
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  client   Client   @relation(fields: [clientId], references: [id])
+  advisor  Advisor? @relation(fields: [advisorId], references: [id])
+
+  @@index([clientId])
+  @@index([advisorId])
+}
+
+
+model Consent {
+  id         String   @id @default(cuid())
+  clientId   String
+  type       String // "DATA_ACCESS" | "AI_USAGE"
+  acceptedAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  clientId  String
+  type      String // PAN | AADHAAR | KYC | INSURANCE
+  url       String
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model FeatureFlag {
+  name    String  @id // e.g. "AI_INSURANCE_GAP", "AI_CHAT"
+  enabled Boolean @default(true)
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  advisorId String
+  plan      String // "FREE" | "PRO" | "ENTERPRISE"
+  expiresAt DateTime
+
+  advisor Advisor @relation(fields: [advisorId], references: [id])
+}
+
+model AiUsage {
+  id        String   @id @default(cuid())
+  advisorId String
+  feature   String // "INSURANCE_GAP", "CHAT", etc.
+  tokens    Int
+  cost      Float
+  createdAt DateTime @default(now())
+
+  advisor Advisor @relation(fields: [advisorId], references: [id])
+}
+
+//
+// 🔹 CRM + Campaign models
+//
+
+model Interaction {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+
+  advisorId String?
+  advisor   Advisor? @relation(fields: [advisorId], references: [id])
+
+  type      InteractionType
+  channel   ChannelType
+  direction DirectionType
+  subject   String?
+  content   String
+  meta      Json?
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  advisorId String?
+  advisor   Advisor? @relation("AdvisorTasks", fields: [advisorId], references: [id])
+
+  title       String
+  description String?
+  dueAt       DateTime?
+  status      TaskStatus   @default(PENDING)
+  priority    TaskPriority @default(MEDIUM)
+}
+
+model Campaign {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name        String
+  description String?
+  channel     ChannelType
+  status      CampaignStatus @default(DRAFT)
+
+  // simple filter JSON (riskLevel, AUM, etc)
+  filterJson Json?
+
+  scheduledAt DateTime?
+  sentAt      DateTime?
+
+  // many-to-many with Client
+  clients Client[] @relation("CampaignClients")
+}
+
+model ChannelTemplate {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name    String
+  channel ChannelType
+  subject String?
+  body    String // e.g. "Hi {{name}}, your SIP of {{amount}} is due on {{date}}."
+}
+
+enum InteractionType {
+  NOTE
+  CALL
+  MEETING
+  WHATSAPP
+  SMS
+  EMAIL
+  SYSTEM
+}
+
+enum ChannelType {
+  WHATSAPP
+  SMS
+  EMAIL
+}
+
+enum DirectionType {
+  INBOUND
+  OUTBOUND
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+  CANCELLED
+}
+
+//
+// 🔹 Distribution enums
+//
+
+enum ProductType {
+  MF
+  LOAN
+  INSURANCE
+  AIF
+  OTHER
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum TransactionType {
+  PURCHASE
+  REDEMPTION
+  SIP_INSTALLMENT
+  LOAN_DISBURSAL
+  LOAN_REPAYMENT
+  PREMIUM_PAYMENT
+  WITHDRAWAL
+}
+
+enum DistributionChannel {
+  ONLINE
+  OFFLINE
+  PARTNER
+}
+
+//
+// 🔹 Distribution models (single, correct versions)
+//
+
+model FinancialProduct {
+  id            String      @id @default(cuid())
+  type          ProductType
+  name          String
+  code          String?     @unique
+  provider      String?
+  category      String?
+  riskLevel     String?
+  minInvestment Float?
+  enabled       Boolean     @default(true)
+  metadata      Json?
+  nav           Float?
+  navDate       DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  portfolios    Portfolio[]
+  transactions  ProductTransaction[]
+  sipPlans      SipPlan[] // ✅ ADD THIS LINE
+  MutualFundNav MutualFundNav[]
+}
+
+model ProductTransaction {
+  id       String @id @default(cuid())
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+
+  portfolioId String?
+  portfolio   Portfolio? @relation(fields: [portfolioId], references: [id])
+
+  productId String
+  product   FinancialProduct @relation(fields: [productId], references: [id])
+
+  amount  Float
+  units   Float?
+  nav     Float?
+  txnType TransactionType
+  status  TransactionStatus   @default(PENDING)
+  channel DistributionChannel @default(ONLINE)
+
+  externalRef String? // broker order ID
+  rawResponse Json? // raw API payload
+
+  createdAt DateTime @default(now())
+}
+
+model MutualFundNav {
+  id         String   @id @default(cuid())
+  schemeCode String
+  isin       String?
+  schemeName String
+  nav        Float
+  navDate    DateTime
+  source     String   @default("AMFI")
+  createdAt  DateTime @default(now())
+
+  productId String?
+  product   FinancialProduct? @relation(fields: [productId], references: [id])
+
+  @@index([schemeCode])
+  @@index([navDate])
+}
+
+enum MfOrderType {
+  BUY
+  SELL
+  SIP
+}
+
+enum MfOrderStatus {
+  INITIATED
+  PENDING
+  ALLOTTED
+  FAILED
+  CANCELLED
+}
+
+model MutualFundOrder {
+  id              String        @id @default(cuid())
+  clientId        String // FK to Client (adjust type if needed)
+  schemeCode      String
+  isin            String?
+  type            MfOrderType
+  status          MfOrderStatus @default(INITIATED)
+  amount          Float
+  units           Float? // filled after allotment
+  navAtOrder      Float? // price used
+  externalOrderId String? // broker (BSE/NSE) order id
+  broker          String? // "MOCK" | "BSE_STAR" | etc.
+  errorMessage    String?
+  placedAt        DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+enum SipMandateStatus {
+  CREATED
+  PENDING
+  ACTIVE
+  FAILED
+  CANCELLED
+}
+
+model SipMandate {
+  id          String           @id @default(cuid())
+  clientId    String
+  bankAccount String
+  umrn        String? // mandate reference
+  status      SipMandateStatus @default(CREATED)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // optional metadata
+  debitAmount Float?
+  frequency   String? // "MONTHLY", etc.
+  startDate   DateTime?
+}
+
+model InsuranceProduct {
+  id          String @id @default(cuid())
+  insurer     String
+  name        String
+  type        String // "TERM", "HEALTH", "MOTOR", etc.
+  minAge      Int
+  maxAge      Int
+  basePremium Float // base monthly premium for baseSum
+  baseSum     Int // e.g. 1000000 (₹10L)
+}
+
+enum InsuranceProposalStatus {
+  CREATED
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model InsuranceProposal {
+  id             String                  @id @default(cuid())
+  clientId       String
+  productId      String
+  insurer        String
+  sumAssured     Int
+  tenureYears    Int
+  age            Int
+  smoker         Boolean
+  premiumMonthly Float
+  status         InsuranceProposalStatus @default(CREATED)
+  createdAt      DateTime                @default(now())
+}
+
+enum LoanType {
+  PERSONAL
+  HOME
+  CAR
+}
+
+enum LoanApplicationStatus {
+  CREATED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  DISBURSED
+}
+
+model LoanProduct {
+  id        String   @id @default(cuid())
+  lender    String
+  name      String
+  type      LoanType
+  interest  Float // annual interest %
+  minTenure Int
+  maxTenure Int
+}
+
+model PortfolioPosition {
+  id       String @id @default(cuid())
+  clientId String
+  isin     String
+  units    Float
+  avgPrice Float
+}
+
+model LoanApplication {
+  id       String @id @default(cuid())
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+
+  amount       Decimal @db.Decimal(14, 2)
+  tenureMonths Int
+  interestRate Decimal @db.Decimal(5, 2) // p.a.
+  purpose      String?
+
+  status    LoanStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // optional for simulation
+  approvedAmount Decimal?  @db.Decimal(14, 2)
+  emiAmount      Decimal?  @db.Decimal(14, 2)
+  disbursedAt    DateTime?
+
+  statusHistory LoanStatusHistory[]
+}
+
+model LoanStatusHistory {
+  id                String          @id @default(cuid())
+  loanApplicationId String
+  loanApplication   LoanApplication @relation(fields: [loanApplicationId], references: [id])
+
+  fromStatus LoanStatus?
+  toStatus   LoanStatus
+  comment    String?
+  changedBy  String? // "SYSTEM" | adminId | advisorId
+  createdAt  DateTime    @default(now())
+}
+
+enum LoanStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  DISBURSED
+  CLOSED
+}
+
+model Goal {
+  id       String @id @default(cuid())
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+
+  name        String // "Retirement", "Child Education"
+  description String?
+
+  goalType     GoalType
+  targetAmount Decimal  @db.Decimal(14, 2)
+  targetDate   DateTime
+
+  currentAmount      Decimal  @default(0) @db.Decimal(14, 2) // cached
+  requiredMonthlySip Decimal? @db.Decimal(14, 2)
+  assumedReturnPa    Decimal  @db.Decimal(4, 2) // e.g. 12.0
+
+  riskProfile String? // "Conservative" | "Moderate" | "Aggressive"
+  status      GoalStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recommendations GoalRecommendation[]
+}
+
+model GoalRecommendation {
+  id     String @id @default(cuid())
+  goalId String
+  goal   Goal   @relation(fields: [goalId], references: [id])
+
+  schemeId          String? // link to MF scheme table if any
+  schemeName        String
+  allocationPercent Int // e.g. 60, 20, 20
+
+  createdAt DateTime @default(now())
+}
+
+enum GoalType {
+  RETIREMENT
+  EDUCATION
+  WEALTH_CREATION
+  CAR
+  HOUSE
+  OTHER
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
