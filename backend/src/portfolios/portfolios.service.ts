@@ -49,9 +49,11 @@ export class PortfoliosService {
 You are a financial advisor AI.
 
 CLIENT PORTFOLIO:
-${positions.length === 0 ? '(no holdings)' : positions
-      .map((p) => `- ${p.type}, ${p.product}, ₹${p.value}`)
-      .join('\n')}
+${
+  positions.length === 0
+    ? '(no holdings)'
+    : positions.map((p) => `- ${p.type}, ${p.product}, ₹${p.value}`).join('\n')
+}
 
 TOTAL VALUE: ₹${total}
 
@@ -74,9 +76,11 @@ Analyze this portfolio and give 3–5 bullet insights.
 Return ONLY a JSON array of strings.
 
 PORTFOLIO:
-${positions.length === 0 ? '(no holdings)' : positions
-      .map((p) => `- ${p.type}, ${p.product}, ₹${p.value}`)
-      .join('\n')}
+${
+  positions.length === 0
+    ? '(no holdings)'
+    : positions.map((p) => `- ${p.type}, ${p.product}, ₹${p.value}`).join('\n')
+}
     `;
 
     const raw = await this.gemini.generate(prompt);
@@ -84,7 +88,10 @@ ${positions.length === 0 ? '(no holdings)' : positions
     let insights: string[] = [];
     try {
       insights = JSON.parse(
-        raw.replace(/```json/gi, '').replace(/```/g, '').trim(),
+        raw
+          .replace(/```json/gi, '')
+          .replace(/```/g, '')
+          .trim(),
       );
     } catch {
       insights = [raw];
@@ -110,9 +117,7 @@ ${positions.length === 0 ? '(no holdings)' : positions
     }
 
     const equityValue = positions
-      .filter(
-        (p) => p.type === 'Stock' || p.type === 'MF' || p.type === 'ETF',
-      )
+      .filter((p) => p.type === 'Stock' || p.type === 'MF' || p.type === 'ETF')
       .reduce((sum, p) => sum + p.value, 0);
 
     const prompt = `

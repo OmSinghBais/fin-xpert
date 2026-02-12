@@ -11,7 +11,7 @@ export class BankService {
     private readonly gemini: GeminiService,
   ) {}
 
-  async importStatement(file: Express.Multer.File) {
+  async importStatement(clientId: string, file: Express.Multer.File) {
     try {
       // 1️⃣ Extract text (OCR / PDF / Excel)
       const rawText = file.mimetype.includes('pdf')
@@ -36,6 +36,13 @@ ${rawText}
 
 Return ONLY valid JSON. No markdown. No backticks.
       `;
+
+      // Check if Gemini AI is available
+      if (!this.gemini.isAvailable()) {
+        throw new InternalServerErrorException(
+          'AI service is not available. Please configure GEMINI_API_KEY to use bank statement import.',
+        );
+      }
 
       // ✅ FIXED GEMINI CALL
       const aiResult = await this.gemini.generate(prompt);
@@ -69,8 +76,7 @@ Return ONLY valid JSON. No markdown. No backticks.
             amount: Number(t.amount),
             type: t.type,
             category: t.category,
-            // ⚠️ Replace this with real clientId from JWT / request later
-            clientId: 'TODO_CLIENT_ID',
+            clientId,
           },
         });
       }
@@ -85,16 +91,50 @@ Return ONLY valid JSON. No markdown. No backticks.
   }
 
   // ============================
-  // HELPERS (STUBS FOR NOW)
+  // HELPERS
   // ============================
 
   private async extractPdfText(buffer: Buffer): Promise<string> {
-    // TODO: integrate pdf-parse / OCR here
-    return 'PDF TEXT HERE';
+    try {
+      const pdfParse = require('pdf-parse');
+      const data = await pdfParse(buffer);
+      return data.text;
+    } catch (error) {
+      console.error('PDF parsing error:', error);
+      throw new InternalServerErrorException('Failed to parse PDF file');
+    }
   }
 
   private async extractExcelText(buffer: Buffer): Promise<string> {
-    // TODO: integrate xlsx parser here
-    return 'EXCEL TEXT HERE';
+    try {
+      const XLSX = require('xlsx');
+      const workbook = XLSX.read(buffer, { type: 'buffer' });
+
+      // Get the first sheet
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+
+      // Convert to JSON and then to text
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Format as readable text
+      let text = '';
+      if (jsonData.length > 0) {
+        // Header row
+        const headers = Object.keys(jsonData[0]);
+        text += headers.join(' | ') + '\n';
+        text += '-'.repeat(headers.length * 20) + '\n';
+
+        // Data rows
+        jsonData.forEach((row: any) => {
+          text += headers.map((h) => row[h] || '').join(' | ') + '\n';
+        });
+      }
+
+      return text;
+    } catch (error) {
+      console.error('Excel parsing error:', error);
+      throw new InternalServerErrorException('Failed to parse Excel file');
+    }
   }
 }

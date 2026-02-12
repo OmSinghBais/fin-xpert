@@ -6,25 +6,31 @@ export class InsuranceController {
   constructor(private readonly insurance: InsuranceService) {}
 
   @Post('estimate')
-  estimate(@Body() body: {
-    productId: string;
-    age: number;
-    smoker: boolean;
-    sumAssured: number;
-    tenureYears: number;
-  }) {
+  estimate(
+    @Body()
+    body: {
+      productId: string;
+      age: number;
+      smoker: boolean;
+      sumAssured: number;
+      tenureYears: number;
+    },
+  ) {
     return this.insurance.estimatePremium(body);
   }
 
   @Post('proposals')
-  createProposal(@Body() body: {
-    clientId: string;
-    productId: string;
-    age: number;
-    smoker: boolean;
-    sumAssured: number;
-    tenureYears: number;
-  }) {
+  createProposal(
+    @Body()
+    body: {
+      clientId: string;
+      productId: string;
+      age: number;
+      smoker: boolean;
+      sumAssured: number;
+      tenureYears: number;
+    },
+  ) {
     return this.insurance.createProposal(body);
   }
 }

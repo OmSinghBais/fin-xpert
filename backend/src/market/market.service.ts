@@ -7,8 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class MarketService {
   private readonly logger = new Logger(MarketService.name);
-  private readonly navUrl =
-    'https://portal.amfiindia.com/spages/NAVAll.txt';
+  private readonly navUrl = 'https://portal.amfiindia.com/spages/NAVAll.txt';
 
   constructor(
     private readonly http: HttpService,

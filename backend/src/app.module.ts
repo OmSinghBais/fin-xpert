@@ -29,13 +29,11 @@ import { MessagingModule } from './messaging/messaging.module';
 import { CrmModule } from './crm/crm.module';
 import { DistributionModule } from './distribution/distribution.module';
 import { AiFollowupCron } from './cron/ai-followup.cron';
-import { NavSyncCron } from './cron/nav-sync.cron';
 import { BrokerModule } from './broker/broker.module';
 import { SipModule } from './sip/sip.module';
 import { OrdersModule } from './order/mf-orders.module';
 import { InsuranceModule } from './insurance/insurance.module';
 import { LoansModule } from './loans/loans.module';
-import { LoansService } from './loans/loans.service';
 import { GoalsModule } from './goals/goals.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 
@@ -61,15 +59,13 @@ import { AuditLogsModule } from './audit-logs/audit-logs.module';
     MessagingModule,
     CrmModule,
     DistributionModule,
-    MarketModule,
     BrokerModule,
     SipModule,
     OrdersModule,
     InsuranceModule,
-    LoansModule ,
+    LoansModule,
     GoalsModule,
-    AuditLogsModule
-    
+    AuditLogsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -78,8 +74,8 @@ import { AuditLogsModule } from './audit-logs/audit-logs.module';
     SipReminderCron,
     MarketDataCron,
     AiFollowupCron,
-   // NavSyncCron,
-   GeminiService,
+    // NavSyncCron,
+    GeminiService,
   ],
   exports: [GeminiService],
 })

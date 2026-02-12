@@ -68,7 +68,10 @@ Return ONLY JSON:
 
     try {
       return JSON.parse(
-        raw.replace(/```json/gi, '').replace(/```/g, '').trim(),
+        raw
+          .replace(/```json/gi, '')
+          .replace(/```/g, '')
+          .trim(),
       );
     } catch {
       return [

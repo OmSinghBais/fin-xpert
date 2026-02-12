@@ -43,10 +43,7 @@ export class AiFollowupCron {
       if (!task.client) continue;
 
       try {
-        await this.crmService.sendAICampaign(
-          task.client.id,
-          'FOLLOW_UP',
-        );
+        await this.crmService.sendAICampaign(task.client.id, 'FOLLOW_UP');
 
         await this.prisma.task.update({
           where: { id: task.id },

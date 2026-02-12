@@ -6,8 +6,8 @@ import { AiModule } from '../ai/ai.module';
 
 @Module({
   imports: [
-    PrismaModule,   // ✅ gives PrismaService
-    AiModule,       // ✅ gives GeminiService (THIS fixes your error)
+    PrismaModule, // ✅ gives PrismaService
+    AiModule, // ✅ gives GeminiService (THIS fixes your error)
   ],
   controllers: [PortfoliosController],
   providers: [PortfoliosService],

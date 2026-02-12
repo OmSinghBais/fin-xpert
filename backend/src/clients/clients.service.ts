@@ -53,8 +53,8 @@ export class ClientsService {
 
       let emi = l.emiAmount ? Number(l.emiAmount) : 0;
       if (!emi && rate > 0 && n > 0) {
-        emi = (amount * rate * Math.pow(1 + rate, n)) /
-          (Math.pow(1 + rate, n) - 1);
+        emi =
+          (amount * rate * Math.pow(1 + rate, n)) / (Math.pow(1 + rate, n) - 1);
       }
 
       return {

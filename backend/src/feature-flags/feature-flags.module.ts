@@ -11,4 +11,3 @@ import { FeatureFlagsController } from './feature-flags.controller';
   exports: [FeatureFlagsService],
 })
 export class FeatureFlagsModule {}
-

@@ -8,7 +8,7 @@ import { AiModule } from '../ai/ai.module';
   imports: [
     ScheduleModule.forRoot(),
     PrismaModule,
-    AiModule,           // ✅ gives GeminiService to CRON
+    AiModule, // ✅ gives GeminiService to CRON
   ],
   providers: [PortfolioHealthCron],
 })

@@ -13,4 +13,3 @@ export class AnalyticsController {
     return this.analyticsService.getAdvisorDashboard(advisorId);
   }
 }
-

@@ -41,10 +41,7 @@ export class PortfoliosController {
 
   // ✅ SIMPLE CHAT (Gemini)
   @Post('chat')
-  chat(
-    @Param('clientId') clientId: string,
-    @Body() body: { message: string },
-  ) {
+  chat(@Param('clientId') clientId: string, @Body() body: { message: string }) {
     return this.portfoliosService.chat(clientId, body.message);
   }
 

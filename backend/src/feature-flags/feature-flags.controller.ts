@@ -12,10 +12,7 @@ export class FeatureFlagsController {
   }
 
   @Patch()
-  setFlag(
-    @Body() body: { name: string; enabled: boolean },
-  ) {
+  setFlag(@Body() body: { name: string; enabled: boolean }) {
     return this.ffService.setFlag(body.name, body.enabled);
   }
 }
-

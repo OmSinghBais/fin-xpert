@@ -6,7 +6,15 @@ export class SipMandatesController {
   constructor(private readonly sipService: SipMandatesService) {}
 
   @Post()
-  create(@Body() body: { clientId: string; bankAccount: string; amount: number; frequency: string }) {
+  create(
+    @Body()
+    body: {
+      clientId: string;
+      bankAccount: string;
+      amount: number;
+      frequency: string;
+    },
+  ) {
     return this.sipService.createMandate(body);
   }
 
@@ -15,4 +23,3 @@ export class SipMandatesController {
     return this.sipService.listMandates(clientId);
   }
 }
-

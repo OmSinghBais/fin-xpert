@@ -1,5 +1,13 @@
 // src/crm/crm.controller.ts
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CrmService } from './crm.service';
 
@@ -12,7 +20,11 @@ export class CrmController {
   @Post('interactions')
   createInteraction(
     @Body()
-    body: { clientId: string; channel: string; notes?: string },
+    body: {
+      clientId: string;
+      channel: string;
+      notes?: string;
+    },
   ) {
     return this.crmService.createInteraction(body);
   }
@@ -26,7 +38,11 @@ export class CrmController {
   @Post('tasks')
   createTask(
     @Body()
-    body: { clientId: string; title: string; dueDate?: string | Date },
+    body: {
+      clientId: string;
+      title: string;
+      dueDate?: string | Date;
+    },
   ) {
     return this.crmService.createTask(body);
   }

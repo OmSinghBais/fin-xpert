@@ -14,7 +14,7 @@ export class LoansController {
   getLoanOptimization(@Param('clientId') clientId: string) {
     return this.loansService.getLoanOptimization(clientId);
   }
-  
+
   // GET /api/admin/loans
   @Get('admin/loans')
   getAdminLoans() {

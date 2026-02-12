@@ -38,4 +38,3 @@ export class MockMutualFundBroker implements MutualFundBroker {
     };
   }
 }
-

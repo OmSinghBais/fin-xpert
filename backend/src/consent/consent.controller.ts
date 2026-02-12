@@ -5,10 +5,7 @@ export class ConsentController {
   constructor(private readonly consentService: ConsentService) {}
 
   @Post(':clientId')
-  giveConsent(
-    @Param('clientId') clientId: string,
-    @Body('type') type: string,
-  ) {
+  giveConsent(@Param('clientId') clientId: string, @Body('type') type: string) {
     return this.consentService.giveConsent(clientId, type);
   }
 

@@ -6,7 +6,6 @@ import { AiUsageService } from './ai-usage.service';
 @Module({
   imports: [PrismaModule],
   providers: [AiUsageService],
-  exports: [AiUsageService],  // so other modules (like AiModule) can inject it
+  exports: [AiUsageService], // so other modules (like AiModule) can inject it
 })
 export class AiUsageModule {}
-

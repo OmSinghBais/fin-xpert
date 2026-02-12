@@ -9,10 +9,7 @@ export class MessagingService {
 
   private readonly twilioClient =
     process.env.TWILIO_SID && process.env.TWILIO_AUTH_TOKEN
-      ? new Twilio(
-          process.env.TWILIO_SID,
-          process.env.TWILIO_AUTH_TOKEN,
-        )
+      ? new Twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN)
       : null;
 
   private readonly mailer =
@@ -35,8 +32,7 @@ export class MessagingService {
     try {
       // ✅ SMS / WhatsApp via Twilio
       if (
-        (channel === ChannelType.SMS ||
-          channel === ChannelType.WHATSAPP) &&
+        (channel === ChannelType.SMS || channel === ChannelType.WHATSAPP) &&
         this.twilioClient
       ) {
         const msg = await this.twilioClient.messages.create({
@@ -45,10 +41,7 @@ export class MessagingService {
             channel === ChannelType.WHATSAPP
               ? `whatsapp:${process.env.TWILIO_WHATSAPP_FROM}`
               : process.env.TWILIO_SMS_FROM,
-          to:
-            channel === ChannelType.WHATSAPP
-              ? `whatsapp:${to}`
-              : to,
+          to: channel === ChannelType.WHATSAPP ? `whatsapp:${to}` : to,
         });
 
         return { success: true, providerMessageId: msg.sid };

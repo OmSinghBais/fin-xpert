@@ -28,4 +28,3 @@ export class CreateProductDto {
   @IsNumber()
   minInvestment?: number;
 }
-

@@ -6,8 +6,8 @@ import { AiModule } from '../ai/ai.module';
 
 @Module({
   imports: [
-    PrismaModule,   // ✅ PrismaService
-    AiModule,       // ✅ GeminiService
+    PrismaModule, // ✅ PrismaService
+    AiModule, // ✅ GeminiService
   ],
   controllers: [BankController],
   providers: [BankService],

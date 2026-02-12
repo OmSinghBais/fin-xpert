@@ -9,4 +9,3 @@ import { ConsentController } from './consent.controller';
   controllers: [ConsentController],
 })
 export class ConsentModule {}
-

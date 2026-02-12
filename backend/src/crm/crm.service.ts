@@ -36,7 +36,11 @@ export class CrmService {
   /* ========== TASKS ========== */
 
   // NOTE: controller calls createTask(dto) with a single object
-  async createTask(dto: { clientId: string; title: string; dueDate?: string | Date }) {
+  async createTask(dto: {
+    clientId: string;
+    title: string;
+    dueDate?: string | Date;
+  }) {
     // You can later wire this into a real Prisma model like CrmTask
     return {
       id: 'temp-task-id',

@@ -8,9 +8,9 @@ import { AiModule } from '../ai/ai.module';
 
 @Module({
   imports: [
-    PrismaModule,      // ✅ PrismaService
-    MessagingModule,   // ✅ MessagingService
-    AiModule,          // ✅ GeminiService (THIS fixes your error)
+    PrismaModule, // ✅ PrismaService
+    MessagingModule, // ✅ MessagingService
+    AiModule, // ✅ GeminiService (THIS fixes your error)
   ],
   controllers: [CrmController],
   providers: [CrmService],

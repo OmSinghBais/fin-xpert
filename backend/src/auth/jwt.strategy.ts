@@ -4,6 +4,11 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 
 const JWT_SECRET = 'FINXPERT_SUPER_SECRET_KEY_123'; // <== SAME as in auth.module.ts
 
+interface JwtPayload {
+  sub: string;
+  email: string;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
@@ -14,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload) {
     return { userId: payload.sub, email: payload.email };
   }
 }

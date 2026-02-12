@@ -4,7 +4,7 @@ import { AuditService } from './audit.service';
 import { AuditLogsModule } from '../audit-logs/audit-logs.module';
 
 @Module({
-  imports: [AuditLogsModule],  // 👈 this gives AuditService access to AuditLogsService
+  imports: [AuditLogsModule], // 👈 this gives AuditService access to AuditLogsService
   providers: [AuditService],
   exports: [AuditService],
 })

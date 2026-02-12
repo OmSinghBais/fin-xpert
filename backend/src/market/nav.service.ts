@@ -50,8 +50,7 @@ export class NavService {
       const navRaw = parts[4]?.trim();
 
       // navDate is usually at index 7 but sometimes last column
-      const navDateStr =
-        parts[7]?.trim() || parts[parts.length - 1]?.trim();
+      const navDateStr = parts[7]?.trim() || parts[parts.length - 1]?.trim();
 
       if (!schemeCode || !schemeName || !navRaw || !navDateStr) {
         skipped++;

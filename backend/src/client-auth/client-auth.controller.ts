@@ -6,9 +6,7 @@ export class ClientAuthController {
   constructor(private readonly clientAuthService: ClientAuthService) {}
 
   @Post('login')
-  login(
-    @Body() body: { phone: string; password: string },
-  ) {
+  login(@Body() body: { phone: string; password: string }) {
     return this.clientAuthService.login(body.phone, body.password);
   }
 }

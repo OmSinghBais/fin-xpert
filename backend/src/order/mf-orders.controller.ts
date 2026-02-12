@@ -6,7 +6,15 @@ export class MfOrdersController {
   constructor(private readonly mfOrdersService: MfOrdersService) {}
 
   @Post('buy')
-  placeBuy(@Body() body: { clientId: string; schemeCode: string; isin?: string; amount: number }) {
+  placeBuy(
+    @Body()
+    body: {
+      clientId: string;
+      schemeCode: string;
+      isin?: string;
+      amount: number;
+    },
+  ) {
     return this.mfOrdersService.placeBuyOrder(body);
   }
 

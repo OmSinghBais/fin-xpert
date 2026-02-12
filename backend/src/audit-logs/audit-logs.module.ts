@@ -4,9 +4,9 @@ import { AuditLogsController } from './audit-logs.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],          // gives PrismaService
+  imports: [PrismaModule], // gives PrismaService
   controllers: [AuditLogsController],
   providers: [AuditLogsService],
-  exports: [AuditLogsService],      // ✅ REQUIRED for LoansModule & AuditModule
+  exports: [AuditLogsService], // ✅ REQUIRED for LoansModule & AuditModule
 })
 export class AuditLogsModule {}

@@ -1,10 +1,6 @@
 // src/broker/mf-broker.service.ts
 import { Injectable } from '@nestjs/common';
-import {
-  Client,
-  FinancialProduct,
-  TransactionType,
-} from '@prisma/client';
+import { Client, FinancialProduct, TransactionType } from '@prisma/client';
 
 export interface MfOrderResult {
   success: boolean;
@@ -52,4 +48,3 @@ export class MfBrokerService {
     };
   }
 }
-

@@ -9,7 +9,7 @@ import { AiModule } from '../ai/ai.module';
   imports: [
     PrismaModule,
     AuditLogsModule,
-    AiModule,          // ✅ GeminiService now comes from AiModule
+    AiModule, // ✅ GeminiService now comes from AiModule
   ],
   controllers: [LoansController],
   providers: [LoansService],
