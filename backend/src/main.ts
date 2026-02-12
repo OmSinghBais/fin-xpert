@@ -26,21 +26,24 @@ async function bootstrap() {
   // Global exception filter
   app.useGlobalFilters(new AllExceptionsFilter());
 
+  const backendUrl =
+    process.env.BACKEND_URL || 'http://localhost:3001';
+
   const config = new DocumentBuilder()
     .setTitle('FinXpert API')
     .setDescription('FinXpert backend API docs')
     .setVersion('1.0')
     .addBearerAuth()
     // ✅ Tell Swagger which server to call
-    .addServer('http://localhost:3001')
+    .addServer(backendUrl)
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // ✅ Backend on 3001 (NOT 3000)
-  await app.listen(3001);
-  console.log(`🚀 Backend running on http://localhost:3001`);
-  console.log(`📚 Swagger on http://localhost:3001/api/docs`);
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`🚀 Backend running on http://localhost:${port}`);
+  console.log(`📚 Swagger on ${backendUrl}/api/docs`);
 }
 bootstrap();
